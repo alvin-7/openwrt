@@ -2,11 +2,8 @@ name: Build OpenWrt
 
 on:
   push:
-    branches:
-      - openwrt-23.05  # 监听 openwrt-23.05 分支上的推送事件
-  pull_request:
-    branches:
-      - openwrt-23.05  # 监听 openwrt-23.05 分支上的 PR 事件
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
@@ -16,20 +13,8 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4  # 更新到 v4
+        uses: actions/checkout@v4
 
-      - name: Cache OpenWrt build
-        id: cache-openwrt
-        uses: actions/cache@v3
-        with:
-          path: |
-            bin
-            build_dir
-            staging_dir
-            tmp
-          key: ${{ runner.os }}-openwrt-${{ hashFiles('**/*') }}
-          restore-keys: |
-            ${{ runner.os }}-openwrt-
       - name: Set up OpenWrt build environment
         run: |
           sudo apt-get update -y
@@ -222,43 +207,15 @@ jobs:
         run: make download -j8 V=s
 
       - name: Build OpenWrt
-        run: |
-          # 指定 target 和 subtarget
-          make V=s -j$(nproc)
-      - name: Check build output
-        run: |
-          if find bin/targets/ -type f -name "openwrt-x86-64-generic-squashfs-combined-efi.img.gz" -print -quit | grep -q .; then
-            echo "存在以 .img.gz 结尾的文件"
-          else
-            ls -alhR bin/targets/**/
-            exit 1
-          fi
-      - name: List build output files
-        run: |
-          ls -alh bin/targets/**/
-      - name: Create unique tag
-        id: create_tag
-        run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          TAG_NAME="build-${TIMESTAMP}"
-          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1  # 目前没有更新版本，仍然使用 v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.TAG_NAME }}
-          release_name: 'OpenWrt Build ${{ env.TAG_NAME }}'
-          draft: false
-          prerelease: false
+        run: make V=s -j$(nproc)
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1  # 目前没有更新版本，仍然使用 v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz
-          asset_name: openwrt-${{ env.TAG_NAME }}.img.gz
-          asset_content_type: application/octet-stream
+          name: images-artifact
+          path: |
+            bin/targets/**/*.img.gz
+            bin/targets/**/*.tar.gz
+            bin/targets/**/*.buildinfo
+            bin/targets/**/profiles.json
+            bin/targets/**/sha256sums
