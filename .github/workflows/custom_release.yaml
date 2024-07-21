@@ -3,10 +3,10 @@ name: Build OpenWrt
 on:
   push:
     branches:
-      - openwrt-23.05  # 监听 main 分支上的推送事件，你可以根据需要修改分支名称
+      - openwrt-23.05  # 监听 openwrt-23.05 分支上的推送事件
   pull_request:
     branches:
-      - openwrt-23.05  # 监听 main 分支上的 PR 事件
+      - openwrt-23.05  # 监听 openwrt-23.05 分支上的 PR 事件
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Checkout source
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # 更新到 v4
 
     - name: Set up OpenWrt build environment
       run: |
@@ -221,29 +221,37 @@ jobs:
         # 指定 target 和 subtarget
         make V=s -j$(nproc)
 
-    - name: Upload firmware to release
-      uses: actions/upload-artifact@v4
-      with:
-        name: openwrt-firmware
-        path: bin/targets/**/openwrt-*.img.gz
+    - name: Check build output
+      run: |
+        if [ ! -f bin/targets/**/openwrt-*.img.gz ]; then
+          echo "Build failed: No output file found."
+          exit 1
+        fi
+
+    - name: Create unique tag
+      id: create_tag
+      run: |
+        TIMESTAMP=$(date +%Y%m%d%H%M%S)
+        TAG_NAME="build-${TIMESTAMP}"
+        echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
 
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: actions/create-release@v1  # 目前没有更新版本，仍然使用 v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 'latest'
-        release_name: 'Latest OpenWrt Build'
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: 'OpenWrt Build ${{ env.TAG_NAME }}'
         draft: false
         prerelease: false
 
     - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+      uses: actions/upload-release-asset@v1  # 目前没有更新版本，仍然使用 v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: bin/targets/**/openwrt-*.img.gz
-        asset_name: openwrt-latest.img
+        asset_name: openwrt-${{ env.TAG_NAME }}.img
         asset_content_type: application/octet-stream
