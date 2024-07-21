@@ -237,7 +237,7 @@ jobs:
           if [ ! -f bin/targets/**/openwrt-*.img.gz ]; then
             echo "Build failed: No output file found."
             echo "Directory contents:"
-            ls -alh bin/targets/**/
+            ls -alhR bin/targets/**/
             exit 1
           fi
 
