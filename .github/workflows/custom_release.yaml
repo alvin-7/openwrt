@@ -208,6 +208,10 @@ jobs:
         # CONFIG_TARGET_ROOTFS_TARGZ is not set
         EOF
 
+    - name: Verify configuration
+      run: |
+        make defconfig
+
     - name: Download sources
       run: |
         make download -j8 V=s
