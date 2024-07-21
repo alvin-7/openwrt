@@ -215,7 +215,7 @@ jobs:
     - name: Build OpenWrt
       run: |
         # 指定 target 和 subtarget
-        make V=s -j$(nproc) TARGET=ramips SUBTARGET=mt7621
+        make V=s -j$(nproc)
 
     - name: Upload firmware to release
       uses: actions/upload-artifact@v3
