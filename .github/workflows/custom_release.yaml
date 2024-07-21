@@ -234,9 +234,9 @@ jobs:
 
       - name: Check build output
         run: |
-          if [ ! -f bin/targets/**/openwrt-*.img.gz ]; then
-            echo "Build failed: No output file found."
-            echo "Directory contents:"
+          if find bin/targets/ -type f -name "*.img.gz" -print -quit | grep -q .; then
+            echo "存在以 .img 结尾的文件"
+          else
             ls -alhR bin/targets/**/
             exit 1
           fi
