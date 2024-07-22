@@ -96,6 +96,7 @@ jobs:
           CONFIG_PACKAGE_dnsmasq_full_nftset=y
           CONFIG_PACKAGE_dnsmasq_full_noid=y
           CONFIG_PACKAGE_dnsmasq_full_tftp=y
+          CONFIG_PACKAGE_etherwake=y
           CONFIG_PACKAGE_ip-full=y
           CONFIG_PACKAGE_ipset=y
           CONFIG_PACKAGE_kmod-crypto-kpp=y
@@ -144,6 +145,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-mosdns=y
           CONFIG_PACKAGE_luci-app-openclash=y
           CONFIG_PACKAGE_luci-app-opkg=y
+          CONFIG_PACKAGE_luci-app-wol=y
           CONFIG_PACKAGE_luci-base=y
           CONFIG_PACKAGE_luci-compat=y
           CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
@@ -151,6 +153,7 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-firewall-zh-cn=y
           CONFIG_PACKAGE_luci-i18n-mosdns-zh-cn=y
           CONFIG_PACKAGE_luci-i18n-opkg-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-wol-zh-cn=y
           CONFIG_PACKAGE_luci-lib-base=y
           CONFIG_PACKAGE_luci-lib-ip=y
           CONFIG_PACKAGE_luci-lib-jsonc=y
